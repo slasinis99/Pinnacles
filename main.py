@@ -345,7 +345,7 @@ def distinct_pinnacle_placement(G: Graph, n: int, timeit: bool = False) -> list:
     if timeit: print(f'distinct_pinnacle_placement runtime = {time()-t}secs')
     return p
 
-def distinct_pinnacle_fill(G: Graph, dpp: list, p_set: list, timeit: bool = False) -> int | list:
+def fill_pinnacle_placement(G: Graph, dpp: list, p_set: list, timeit: bool = False) -> int | list:
     """Calculate all possible labelings of G give a distinct pinnacle placement and a pinnacle set.
     You should never have to call this!
 
@@ -404,13 +404,16 @@ def distinct_graph_labelings(G: Graph, p_set: list, timeit: bool = False) -> int
     graphs_final = []
     for pinnacle_placement in dpp:
         for p in permutations:
-            total, l = distinct_pinnacle_fill(G, pinnacle_placement, p)
+            total, l = fill_pinnacle_placement(G, pinnacle_placement, p)
             total_final += total
             graphs_final.extend(l)
             G.clear()
     if timeit: print(f'distinct_graph_labelings runtime = {time()-t}secs')
     return total_final, graphs_final
 
+#####################
+# IF NAME THEN MAIN #
+#####################
 
 def main():
     G = create_graph(7, 'cycle')
