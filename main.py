@@ -80,7 +80,7 @@ class Graph:
         """Assign a particular value to a specific node within the Graph
 
         Args:
-            index (int): index of the node to change the value
+            index (int): index of the node to change the value, must be in the range of nodes list
             value (int): value to assign to the node
         """        
         self.nodes[index].set_value(value)
@@ -117,6 +117,23 @@ class Graph:
         if self.delta == -1:
             self.delta = min([len(node.connections) for node in self.nodes])
         return self.delta
+    
+    def get_pinnacles(self, labeling: list) -> list:
+        """Given a specific labeling for this graph, determine which values are pinnacles
+
+        Args:
+            labeling (list): list of the labels for the graph, must be the same size as the number of vertices/nodes
+
+        Returns:
+            set: list of pinnacles for this labeling in descending order
+        """        
+        pinnacles = []
+        for i in range(len(self.nodes)):
+            self.set_node_value(i, labeling[i])
+        for node in self.nodes:
+            if all([node.value > self.nodes[i].value for i in node.connections]):
+                pinnacles.append(node.value)
+        return sorted(pinnacles, reverse=True)
 
 #########
 # ENUMS #
@@ -291,7 +308,7 @@ def generate_permutations(size: int) -> list:
         [[1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,2,1], [3,1,2]]
     """    
     S = []
-    _generate_permutations(S, [i+1 for i in range(size)])
+    _generate_permutations(S, [i+1 for i in range(size)], size)
     return S
 
 def _generate_permutations(S: list, a: list, size: int):
@@ -411,14 +428,41 @@ def distinct_graph_labelings(G: Graph, p_set: list, timeit: bool = False) -> int
     if timeit: print(f'distinct_graph_labelings runtime = {time()-t}secs')
     return total_final, graphs_final
 
+###############
+# BRUTE FORCE #
+###############
+
+def get_all_pinnacle_data(G: Graph, timeit: bool = False) -> dict:
+    """Tests every possible permutation and logs all the occurences of each pinnacle set. This is very slow! Be warned.
+
+    Args:
+        G (Graph): Graph to get all labelings for
+        timeit (bool, optional): Prints the runtime for the method. Defaults to False.
+
+    Returns:
+        dict: dictionary containing all pinnacle sets mapped to the number of occurences
+    """    
+    if timeit: t = time()
+    permutations = generate_permutations(len(G.nodes))
+    d = {}
+    for p in permutations:
+        pinnacles = G.get_pinnacles(p)
+        if d.get(str(pinnacles)) == None:
+            d[str(pinnacles)] = 1
+        else:
+            d[str(pinnacles)] += 1
+    if timeit: print(f'get_all_pinnacle_data runtime = {time()-t}secs')
+    d = sorted(d.items(), key=lambda x:x[1], reverse=True)
+    return d 
+
+
 #####################
 # IF NAME THEN MAIN #
 #####################
 
 def main():
-    G = create_graph(7, 'cycle')
-    p_set = [6,7]
-    print(distinct_graph_labelings(G, p_set, True)[0])
+    G = create_graph(9, 'cycle')
+    print(get_all_pinnacle_data(G, True))
 
 
 if __name__ == "__main__":

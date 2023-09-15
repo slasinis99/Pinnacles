@@ -22,7 +22,8 @@ def showState(state: int, graph_family: int = 0, node_count: int = 5, alt_node_c
         print('1 - Create a Graph')
         print('2 - Modify Pinnacle Set')
         print('3 - Run Calculator')
-        print('4 - Exit')
+        print('4 - Brute Force Graph')
+        print('5 - Exit')
         print('-------------------------')
         return m.get_digits(input("Please enter selection: ")), graph_family, node_count, alt_node_count, pinnacle_set
     elif state == 1: #Choose Graph Family
@@ -140,7 +141,6 @@ def showState(state: int, graph_family: int = 0, node_count: int = 5, alt_node_c
         print(f'Pinnacle Set has been Reset: {pinnacle_set}')
         return 2, graph_family, node_count, alt_node_count, pinnacle_set
     elif state == 3: #Calculate the number of labelings
-        s = ''
         if not graph_family in [m.GraphType.BIPARTITE, m.GraphType.COMPLETE, m.GraphType.CYCLE, m.GraphType.STAR, m.GraphType.WHEEL]:
             return 0, graph_family, node_count, alt_node_count, pinnacle_set
         if graph_family == m.GraphType.COMPLETE:
@@ -202,6 +202,76 @@ def showState(state: int, graph_family: int = 0, node_count: int = 5, alt_node_c
             print(f'Pinnacle Set: {pinnacle_set}')
             print('--------------------------------------')
             print(f'Number of Distinct Labelings: {t}')
+            print(f'-------------------------------------')
+            input(f'Press Enter to Continue')
+            return 0, graph_family, node_count, alt_node_count, pinnacle_set
+    elif state == 4:
+        if not graph_family in [m.GraphType.BIPARTITE, m.GraphType.COMPLETE, m.GraphType.CYCLE, m.GraphType.STAR, m.GraphType.WHEEL]:
+            return 0, graph_family, node_count, alt_node_count, pinnacle_set
+        if graph_family == m.GraphType.COMPLETE:
+            g = m.create_graph(node_count, 'complete')
+            d = m.get_all_pinnacle_data(g)
+            print('--------------------------------------')
+            print('Graph Family: Complete')
+            print(f'Vertex Count: {node_count}')
+            print(f'(Pinnacle Set , Occurences)')
+            print('--------------------------------------')
+            for tuple in d:
+                print(f'{tuple}')
+            print(f'-------------------------------------')
+            input(f'Press Enter to Continue')
+            return 0, graph_family, node_count, alt_node_count, pinnacle_set
+        elif graph_family == m.GraphType.BIPARTITE:
+            g = m.create_graph(node_count, 'bipartite'+str(alt_node_count))
+            d = m.get_all_pinnacle_data(g)
+            print('--------------------------------------')
+            print('Graph Family: Complete Bipartite')
+            print(f'Vertex Count: {node_count}')
+            print(f'Vertices in left half: {alt_node_count}')
+            print(f'(Pinnacle Set , Occurences)')
+            print('--------------------------------------')
+            for tuple in d:
+                print(f'{tuple}')
+            print(f'-------------------------------------')
+            input(f'Press Enter to Continue')
+            return 0, graph_family, node_count, alt_node_count, pinnacle_set
+        elif graph_family == m.GraphType.CYCLE:
+            g = m.create_graph(node_count, 'cycle')
+            d = m.get_all_pinnacle_data(g)
+            print('--------------------------------------')
+            print('Graph Family: Cycle')
+            print(f'Vertex Count: {node_count}')
+            print(f'(Pinnacle Set , Occurences)')
+            print('--------------------------------------')
+            for tuple in d:
+                print(f'{tuple}')
+            print(f'-------------------------------------')
+            input(f'Press Enter to Continue')
+            return 0, graph_family, node_count, alt_node_count, pinnacle_set
+        elif graph_family == m.GraphType.STAR:
+            g = m.create_graph(node_count, 'star'+str(alt_node_count))
+            d = m.get_all_pinnacle_data(g)
+            print('--------------------------------------')
+            print('Graph Family: Star')
+            print(f'Vertex Count: {node_count}')
+            print(f'Stars in the Center: {alt_node_count}')
+            print(f'(Pinnacle Set , Occurences)')
+            print('--------------------------------------')
+            for tuple in d:
+                print(f'{tuple}')
+            print(f'-------------------------------------')
+            input(f'Press Enter to Continue')
+            return 0, graph_family, node_count, alt_node_count, pinnacle_set
+        elif graph_family == m.GraphType.WHEEL:
+            g = m.create_graph(node_count, 'wheel')
+            d = m.get_all_pinnacle_data(g)
+            print('--------------------------------------')
+            print('Graph Family: Wheel')
+            print(f'Vertex Count: {node_count}')
+            print(f'(Pinnacle Set , Occurences)')
+            print('--------------------------------------')
+            for tuple in d:
+                print(f'{tuple}')
             print(f'-------------------------------------')
             input(f'Press Enter to Continue')
             return 0, graph_family, node_count, alt_node_count, pinnacle_set
