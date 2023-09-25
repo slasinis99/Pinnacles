@@ -455,7 +455,6 @@ def get_all_pinnacle_data(G: Graph, timeit: bool = False) -> dict:
     d = sorted(d.items(), key=lambda x:x[1], reverse=True)
     return d 
 
-
 #####################
 # IF NAME THEN MAIN #
 #####################
