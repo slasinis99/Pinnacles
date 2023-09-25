@@ -90,7 +90,7 @@ def showState(state: int, graph_family: int = 0, node_count: int = 5, alt_node_c
         print('----------------------------------------')
         value = m.get_digits(input("Please enter choice: "))
         if value >= 1:
-            node_count = value
+            alt_node_count = value
         return 0, graph_family, node_count, alt_node_count, pinnacle_set
     elif state == 130: #Stars inside graph count
         print('----------------------------------------')
