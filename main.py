@@ -455,13 +455,26 @@ def get_all_pinnacle_data(G: Graph, timeit: bool = False) -> dict:
     d = sorted(d.items(), key=lambda x:x[1], reverse=True)
     return d 
 
+############
+# FORMULAS #
+############
+
+def enumerate_star(k: int, n: int, i: int) -> int:
+    if i == 0:
+        return k*(factorial(n-1)+(n-k)*factorial(n-2))
+    elif i > 0 and i < n-k:
+        return int(k*(factorial(n-k)/factorial(n-k-i-1))*factorial(n-i-2))
+    else:
+        return 0
+
 #####################
 # IF NAME THEN MAIN #
 #####################
 
 def main():
-    G = create_graph(9, 'cycle')
-    print(get_all_pinnacle_data(G, True))
+    G = create_graph(9, 'star-2')
+    print(distinct_graph_labelings(G, [9,8])[0])
+    print(enumerate_star(2,9,1))
 
 
 if __name__ == "__main__":
