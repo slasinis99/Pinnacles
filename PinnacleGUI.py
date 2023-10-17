@@ -21,6 +21,7 @@ class GameManager():
         self.state = 'MAIN'
         self.currentGraph = None
         self.pinnacleSet = []
+        self.notPinnacleSet = []
         #Main Menu Buttons
         self.createGraphButton = StateButton(int(SCREEN_WIDTH/4), int(SCREEN_HEIGHT/4), 'Create Graph', 'CREATE_GRAPH', self)
         self.createPinnacleSetButton = StateButton(int(SCREEN_WIDTH*3/4), int(SCREEN_HEIGHT/4), 'Create Pinnacle Set', 'CREATE_PINNACLE_SET', self)
@@ -38,6 +39,9 @@ class GameManager():
         self.altNodeCount = 1
         self.nodeInc = Incrementer(int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2), 'Node Count')
         self.altNodeInc = None
+        self.clicked = False
+        self.enumerate = 0
+        self.brute = 0
     
     def run(self):
         #Main Menu, Draw the Options: Create Graph, Create Pinnacle Set, Enumerate Graph, Brute Force Graph
@@ -47,9 +51,18 @@ class GameManager():
             SCREEN.blit(r, (int(SCREEN_WIDTH/2 - r.get_width()/2), 16))
             #Draw the Four Buttons
             self.createGraphButton.draw(True)
-            self.createPinnacleSetButton.draw(True)
+            self.createPinnacleSetButton.draw(not self.currentGraph == None)
             self.createEnumerateGraphButton.draw(not self.currentGraph == None and not self.pinnacleSet == [])
             self.createBruteForceButton.draw(not self.currentGraph == None)
+            if not self.currentGraph == None:
+                s = f'{self.graphTypes[self.graphTypeSelection]} with {self.nodeCount} nodes'
+                if self.graphTypeSelection == 1:
+                    s += f' and {self.altNodeCount} stars'
+                elif self.graphTypeSelection == 2:
+                    s += f' and {self.altNodeCount} left side nodes'
+                s += f', S = {sorted(self.pinnacleSet, reverse=True)}'
+                s = FONT_LARGE.render(s, True, (0,0,0))
+                SCREEN.blit(s, (int(SCREEN_WIDTH/2 - s.get_width()/2), int(SCREEN_HEIGHT/2 - s.get_height()/2)))
         elif self.state == 'CREATE_GRAPH':
             #Draw the Title at the Top
             r = FONT_TITLE.render('Create a Graph', True, (0, 0, 0))
@@ -79,7 +92,80 @@ class GameManager():
                 self.state = 'MAIN'
             if basicButton(int(SCREEN_WIDTH*3/4), int(SCREEN_HEIGHT*7/8), 'Create Graph'):
                 self.currentGraph = pin.create_graph(self.nodeCount, f'{self.graphTypeKeys[self.graphTypeSelection]}-{self.altNodeCount}')
+                self.pinnacleSet = [self.nodeCount]
+                self.notPinnacleSet = [i for i in range(1,self.nodeCount)]
                 self.state = 'MAIN'
+        elif self.state == 'CREATE_PINNACLE_SET':
+            removePin = False
+            addPin = False
+            removeVal = -1
+            #Draw the Title at the Top
+            r = FONT_TITLE.render('Create a Pinnacle Set', True, (0,0,0))
+            SCREEN.blit(r, (int(SCREEN_WIDTH/2 - r.get_width()/2), 16))
+            #Draw the Buttons in Pinnacle Set
+            r = FONT_LARGE.render('Pinnacle Set', True, (0, 0, 0))
+            SCREEN.blit(r, (int(SCREEN_WIDTH/2 - r.get_width()/2), int(SCREEN_HEIGHT/4)))
+            for i, v in enumerate(self.pinnacleSet):
+                if pinButton(int(SCREEN_WIDTH/4 + i*SCREEN_WIDTH/16), int(SCREEN_HEIGHT/3), str(v)) and not self.clicked and not i == 0:
+                    removePin = True
+                    removeVal = v
+                    self.clicked = True
+            #Now Draw the not pinnacles
+            r = FONT_LARGE.render('Other Labels', True, (0, 0, 0))
+            SCREEN.blit(r, (int(SCREEN_WIDTH/2 - r.get_width()/2), int(SCREEN_HEIGHT*2/3)))
+            for i, v in enumerate(self.notPinnacleSet):
+                if pinButton(int(SCREEN_WIDTH/4 + i*SCREEN_WIDTH/16), int(SCREEN_HEIGHT*3/4), str(v)) and not self.clicked:
+                    addPin = True
+                    removeVal = v
+                    self.clicked = True
+            if removePin:
+                self.pinnacleSet.remove(removeVal)
+                self.notPinnacleSet.append(removeVal)
+                self.notPinnacleSet.sort()
+            if addPin:
+                self.notPinnacleSet.remove(removeVal)
+                self.pinnacleSet.append(removeVal)
+                self.pinnacleSet.sort(reverse=True)
+            #Handle the Accept Button
+            if basicButton(int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT*7/8), 'Accept'):
+                self.state = 'MAIN'
+        elif self.state == 'ENUMERATE_GRAPH':
+            #Draw the Title at the Top
+            r = FONT_TITLE.render(f'Enumeration', True, (0,0,0))
+            SCREEN.blit(r, (int(SCREEN_WIDTH/2 - r.get_width()/2), 16))
+            s = f'{self.graphTypes[self.graphTypeSelection]} with {self.nodeCount} nodes'
+            if self.graphTypeSelection == 1:
+                s += f' and {self.altNodeCount} stars'
+            elif self.graphTypeSelection == 2:
+                s += f' and {self.altNodeCount} left side nodes'
+            s += f', S = {sorted(self.pinnacleSet, reverse=True)}'
+            s = FONT_LARGE.render(s, True, (0,0,0))
+            SCREEN.blit(s, (int(SCREEN_WIDTH/2 - s.get_width()/2), int(SCREEN_HEIGHT/4 - s.get_height()/2)))
+            s = f'Total = {self.enumerate}'
+            s = FONT_LARGE.render(s, True, (0,0,0))
+            SCREEN.blit(s, (int(SCREEN_WIDTH/2 - s.get_width()/2), int(SCREEN_HEIGHT/2 - s.get_height()/2)))
+            #Handle the Accept Button
+            if basicButton(int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT*7/8), 'Main Menu'):
+                self.state = 'MAIN'
+        elif self.state == 'BRUTE_FORCE_GRAPH':
+            #Draw the Title at the Top
+            r = FONT_TITLE.render(f'Brute Force Data', True, (0,0,0))
+            SCREEN.blit(r, (int(SCREEN_WIDTH/2 - r.get_width()/2), 16))
+            wy = SCREEN_HEIGHT/6
+            for key in self.brute.keys():
+                s = FONT_SMALL.render(key+': ', True, (0, 0, 0))
+                SCREEN.blit(s, (int(SCREEN_WIDTH/2 - s.get_width()), int(wy)))
+                v = FONT_SMALL.render(str(self.brute[key]), True, (0,0,0))
+                SCREEN.blit(v, (int(SCREEN_WIDTH/2), int(wy)))
+                wy += v.get_height() + 8
+            #Handle the Accept Button
+            if basicButton(int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT*7/8), 'Main Menu'):
+                self.state = 'MAIN'
+        if not pygame.mouse.get_pressed()[0]:
+            self.clicked = False
+        
+
+
 
 
 class StateButton():
@@ -104,6 +190,10 @@ class StateButton():
                 bColor = (128, 128, 128)
             if pygame.mouse.get_pressed()[0] and not self.clicked and active:
                 self.master.state = self.state
+                if self.state == 'ENUMERATE_GRAPH':
+                    self.master.enumerate = pin.distinct_graph_labelings(self.master.currentGraph, self.master.pinnacleSet)[0]
+                if self.state == 'BRUTE_FORCE_GRAPH':
+                    self.master.brute = dict(pin.get_all_pinnacle_data(self.master.currentGraph))
                 self.clicked = True
         
         if not pygame.mouse.get_pressed()[0]:
@@ -211,12 +301,25 @@ def basicButton(cx: int, cy: int, text: str) -> bool:
     ret = False
     t = FONT_LARGE.render(text, True, (0, 0, 0))
     bColor = (255, 255, 255)
-    if mouse_within(int(cx - t.get_width()/2), int(cy - t.get_height()/2), int(cx + t.get_width()/2), int(cy + t.get_height()/2)):
+    if mouse_within(int(cx - - SCREEN_WIDTH/10), int(cy - t.get_height()/2), int(cx + - SCREEN_WIDTH/10), int(cy + t.get_height()/2)):
         bColor = (128,128,128)
         if pygame.mouse.get_pressed()[0]:
             ret = True
     pygame.draw.rect(SCREEN, bColor, (int(cx - SCREEN_WIDTH/10), int(cy - SCREEN_HEIGHT/32), int(SCREEN_WIDTH/5), int(SCREEN_HEIGHT/16)))
     pygame.draw.rect(SCREEN, (0, 0, 0), (int(cx - SCREEN_WIDTH/10), int(cy - SCREEN_HEIGHT/32), int(SCREEN_WIDTH/5), int(SCREEN_HEIGHT/16)), 1)
+    SCREEN.blit(t, (int(cx - t.get_width()/2), int(cy - t.get_height()/2)))
+    return ret
+
+def pinButton(cx: int, cy: int, text: str) -> bool:
+    ret = False
+    t = FONT_SMALL.render(text, True, (0, 0, 0))
+    bColor = (255, 255, 255)
+    if mouse_within(int(cx - t.get_width()), int(cy - t.get_height()), int(cx + t.get_width()), int(cy + t.get_height())):
+        bColor = (128,128,128)
+        if pygame.mouse.get_pressed()[0]:
+            ret = True
+    pygame.draw.rect(SCREEN, bColor, (int(cx - t.get_width()), int(cy - t.get_height()), int(2*t.get_width()), int(2*t.get_height())))
+    pygame.draw.rect(SCREEN, (0, 0, 0), (int(cx - t.get_width()), int(cy - t.get_height()), int(2*t.get_width()), int(2*t.get_height())), 1)
     SCREEN.blit(t, (int(cx - t.get_width()/2), int(cy - t.get_height()/2)))
     return ret
 
