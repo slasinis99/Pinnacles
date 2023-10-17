@@ -28,13 +28,13 @@ class GameManager():
         self.createEnumerateGraphButton = StateButton(int(SCREEN_WIDTH/4), int(SCREEN_HEIGHT*3/4), 'Enumerate Graph', 'ENUMERATE_GRAPH', self)
         self.createBruteForceButton = StateButton(int(SCREEN_WIDTH*3/4), int(SCREEN_HEIGHT*3/4), 'Brute Force Graph', 'BRUTE_FORCE_GRAPH', self)
         #Create Graph Variables
-        self.graphTypes = ['Complete', 'Star', 'C. Bipartite', 'Cycle', 'Wheel']
-        self.graphTypeKeys = ['complete', 'star', 'bipartite', 'cycle', 'wheel']
+        self.graphTypes = ['Complete', 'Star', 'C. Bipartite', 'Cycle', 'Wheel', 'Line']
+        self.graphTypeKeys = ['complete', 'star', 'bipartite', 'cycle', 'wheel', 'line']
         self.graphTypeSelection = 0
         self.graphToggleButtons = []
-        lx = int(SCREEN_WIDTH/7)
+        lx = int(SCREEN_WIDTH/8)
         for i, s in enumerate(self.graphTypes):
-            self.graphToggleButtons.append(ToggleButton(lx + int(i*SCREEN_WIDTH*11/60), SCREEN_HEIGHT*3/16, s))
+            self.graphToggleButtons.append(ToggleButton(lx + int(i*SCREEN_WIDTH*2/13), SCREEN_HEIGHT*3/16, s))
         self.nodeCount = NODE_MINIMUM+1
         self.altNodeCount = 1
         self.nodeInc = Incrementer(int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2), 'Node Count')
@@ -214,7 +214,7 @@ class ToggleButton():
         self.w = int(SCREEN_WIDTH/7)
         self.h = int(SCREEN_HEIGHT/16)
         self.text = text
-        self.font = FONT_MEDIUM.render(text, True, (0, 0, 0))
+        self.font = FONT_SMALL.render(text, True, (0, 0, 0))
         self.x = int(cx - self.font.get_width()/2)
         self.y = int(cy - self.font.get_height()/2)
         self.clicked = False

@@ -188,6 +188,8 @@ def create_graph(node_amount: int, style: str = 'star-1') -> Graph:
         return _cycle(node_amount=node_amount)
     elif style[0:8] == 'complete':
         return _complete(node_amount=node_amount)
+    elif style[0:4] == 'line':
+        return _line(node_amount=node_amount)
     else:
         raise NotImplementedError(f'style=\'{style}\' does not correspond to an implemented style.')
 
@@ -290,6 +292,14 @@ def _complete(node_amount: int) -> Graph:
         adjacency_matrix.append(n)
     return Graph(adjacency_matrix)
 
+def _line(node_amount: int) -> Graph:
+    adjacency_matrix = []
+    for i in range(node_amount):
+        n = [0]*node_amount
+        if i > 0: n[i-1] = 1
+        if i < node_amount-1: n[i+1] = 1
+        adjacency_matrix.append(n)
+    return Graph(adjacency_matrix)
 ################
 # PERMUTATIONS #
 ################
