@@ -190,6 +190,8 @@ class StateButton():
                 bColor = (128, 128, 128)
             if pygame.mouse.get_pressed()[0] and not self.clicked and active:
                 self.master.state = self.state
+                if self.state == 'CREATE_PINNACLE_SET':
+                    self.master.pinnacleSet.sort(reverse=True)
                 if self.state == 'ENUMERATE_GRAPH':
                     self.master.enumerate = pin.distinct_graph_labelings(self.master.currentGraph, self.master.pinnacleSet)[0]
                 if self.state == 'BRUTE_FORCE_GRAPH':
