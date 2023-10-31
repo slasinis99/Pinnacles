@@ -1,6 +1,6 @@
 import os
 import main as pin
-
+import matplotlib
 #############
 # DISCOVERY #
 #############
