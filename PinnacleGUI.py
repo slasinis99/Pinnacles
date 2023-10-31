@@ -11,7 +11,7 @@ FONT_MEDIUM = pygame.font.SysFont('Helvetica', 24)
 FONT_LARGE = pygame.font.SysFont('Helvetica', 32)
 FONT_TITLE = pygame.font.SysFont('Ariel', 72)
 
-NODE_LIMIT = 10
+NODE_LIMIT = 12
 NODE_MINIMUM = 1
 
 
