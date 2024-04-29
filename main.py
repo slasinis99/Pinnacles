@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import mplcursors
 import os, pickle
+import pyperclip
 
 ###########
 # CLASSES #
@@ -464,11 +465,11 @@ def get_all_pinnacle_data(G: Graph, timeit: bool = False) -> dict:
     for p in permutations:
         pinnacles = G.get_pinnacles(p)
         if d.get(str(pinnacles)) == None:
-            d[str(pinnacles)] = 1
+            d[str(pinnacles)] = [1, pinnacles]
         else:
-            d[str(pinnacles)] += 1
+            d[str(pinnacles)] = [d[str(pinnacles)][0] + 1, pinnacles]
     if timeit: print(f'get_all_pinnacle_data runtime = {time()-t}secs')
-    d = sorted(d.items(), key=lambda x:x[1], reverse=True)
+    # d = sorted(d.items(), key=lambda x:x[1], reverse=True)
     return d 
 
 ############
@@ -500,13 +501,54 @@ def enumerate_cycle(p_set: list):
 # IF NAME THEN MAIN #
 #####################
 
+def hasse_tikz(G: Graph, n):
+    d = get_all_pinnacle_data(G)
+    p_list = sorted([tuple(sorted(p[1])) for p in d.values() if len(p[1]) == n], key=lambda x: (x[0], x[1], x[2]))
+    s = ''
+    layer = [sorted(p_list, key=lambda x: -sum(x))[0]]
+    y = 0
+    while len(layer) > 0:
+        new_layer = []
+        for i, p in enumerate(layer):
+            k = p_list.index(p)
+            x = 2*(i - len(layer) / 2)
+            s += f'\\node (p{k}) at {x, y} {{${p[0]}{p[1]}{p[2]}{p[3]}$}};\n'
+            if p[0] > 2 and not (p[0]-1,p[1],p[2],p[3]) in new_layer:
+                new_layer.append((p[0]-1,p[1],p[2],p[3]))
+            if p[1] - 1 > p[0] and p[1] > 4 and not (p[0],p[1]-1,p[2],p[3]) in new_layer:
+                new_layer.append((p[0],p[1]-1,p[2],p[3]))
+            if p[2] - 1 > p[1] and p[2] > 6 and not (p[0],p[1],p[2]-1,p[3]) in new_layer:
+                new_layer.append((p[0],p[1],p[2]-1,p[3]))
+        layer = new_layer
+        y -= 1
+    
+    #Draw the connections
+    for i in range(len(p_list)):
+        for j in range(i+1, len(p_list)):
+            incr = 0
+            eq = 0
+            for k in range(len(p_list[i])):
+                if p_list[j][k] - p_list[i][k] == 1:
+                    incr += 1
+                if p_list[j][k] - p_list[i][k] == 0:
+                    eq += 1
+            if incr == 1 and eq == len(p_list[i])-1:
+                s += f'\\draw[black, thick] (p{i}) -- (p{j});\n'
+    pyperclip.copy(s)
+
 def main():
-    n = 9
-    for j in range(3, n-1):
-        for i in range(max(j+1, 5), n):
-            print(f'i = {i}, j = {j}')
-            print(f'Calculated = {enumerate_cycle([n, i, j])}')
-            print(f'Actual     = {distinct_graph_labelings(create_graph(n, "cycle"), [n, i, j])[0]}')
+    #Get all the pinnacle data for specific examples
+    # G = create_graph(9, 'line')
+    # d = get_all_pinnacle_data(G, True)
+
+    # n = 4
+    # for i in range(1,n+1):
+    #     tmp = list(p for p in d.values() if len(p[1]) == i)
+    #     tmp.sort(key=lambda x: -x[0])
+    #     for p in tmp:
+    #         print(f'{str(p[1]): <10}: {p[0]}')
+    G = create_graph(9, 'line')
+    hasse_tikz(G, 4)
 
 if __name__ == "__main__":
     main()
